@@ -1,0 +1,15 @@
+﻿.vs
+Ecommerce.API/bin
+Ecommerce.API/obj
+Ecommerce.DTO/bin
+Ecommerce.DTO/obj
+Ecommerce.Model/bin
+Ecommerce.Model/obj
+Ecommerce.Repository/bin
+Ecommerce.Repository/obj
+Ecommerce.Services/bin
+Ecommerce.Services/obj
+Ecommerce.Utility/bin
+Ecommerce.Utility/obj
+Ecommerce.WebAssembly/bin
+Ecommerce.WebAssembly/obj
