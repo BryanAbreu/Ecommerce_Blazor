@@ -33,6 +33,16 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserSevice>();
 builder.Services.AddScoped<IVentaService,VentaService>();
 
+builder.Services.AddCors(opt=> 
+{
+    opt.AddPolicy("NewPolicy", app => 
+    {
+        app.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader(); 
+    });
+});
+
 builder.Services.AddAutoMapper(typeof(AutommaperProfile));
 
 var app = builder.Build();
@@ -43,6 +53,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("NewPolicy");
 
 app.UseAuthorization();
 
