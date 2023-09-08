@@ -72,7 +72,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost("auth")]
+        [HttpPost("Auth")]
         public async Task<IActionResult> authorization([FromBody] LoginDTO model)
         {
             var response = new ResponseDTO<SesionDTO>();

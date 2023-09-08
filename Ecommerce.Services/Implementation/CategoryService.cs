@@ -66,10 +66,8 @@ namespace Ecommerce.Services.Implementation
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
-
         }
 
         public async Task<bool> Edit(CategoriaDTO model)
@@ -79,21 +77,18 @@ namespace Ecommerce.Services.Implementation
                 var select = await _Repository.Get(x => x.IdCategoria == model.IdCategoria).FirstOrDefaultAsync();
                 if (select != null)
                 {
-                    select.Nombre = model.Nombre;
-                    
+                    select.Nombre = model.Nombre;  
                     var response = await _Repository.Edit(select);
 
                     if (!response)
                         throw new TaskCanceledException("NO edit category service");
 
                     return response;
-
                 }
                 else { throw new TaskCanceledException("No Found category for edit service"); }
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -107,11 +102,9 @@ namespace Ecommerce.Services.Implementation
                     return _Mapper.Map<CategoriaDTO>(select);
                 else
                 { throw new TaskCanceledException("No found id category service"); }
-
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -120,16 +113,13 @@ namespace Ecommerce.Services.Implementation
         {
             try
             {
-                var select = _Repository.Get(x =>
-                string.Concat(x.Nombre.ToLower()).Contains(search.ToLower())
-                );
-
+                var select = _Repository.Get(x => x.Nombre!.ToLower().Contains(search.ToLower()));
                 List<CategoriaDTO> list = _Mapper.Map<List<CategoriaDTO>>(await select.ToListAsync());
+
                 return list;
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
