@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Ecommerce.WebAssembly.Services.Implementation
 {
-    public class CartService : IcartService
+    public class CartService : ICartService
     {
         private ILocalStorageService _localStorageService;
         private ISyncLocalStorageService _syncLocalStorageService;

@@ -2,7 +2,7 @@
 
 namespace Ecommerce.WebAssembly.Services.Contracts
 {
-    public interface IcartService
+    public interface ICartService
     {
         event Action ShowItems;
 
