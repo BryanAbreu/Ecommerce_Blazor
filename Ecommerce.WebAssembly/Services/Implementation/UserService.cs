@@ -44,8 +44,18 @@ namespace Ecommerce.WebAssembly.Services.Implementation
         }
         public async Task<ResponseDTO<UsuarioDTO>> GetById(int id)
         {
-            return await _httpClient.GetFromJsonAsync<ResponseDTO<UsuarioDTO>>($"User/GetById/{id}");
+            try
+            {
+                var response= await _httpClient.GetFromJsonAsync<ResponseDTO<UsuarioDTO>>($"User/GetById/{id}");
+            return response;
 
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+           
         }
 
         public async Task<ResponseDTO<List<UsuarioDTO>>> List(string rol, string search)

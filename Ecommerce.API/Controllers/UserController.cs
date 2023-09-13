@@ -38,7 +38,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);    
         }
 
-        [HttpGet("GetById{id:int}")]
+        [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var response = new ResponseDTO<UsuarioDTO>();

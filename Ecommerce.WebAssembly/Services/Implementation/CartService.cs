@@ -42,7 +42,7 @@ namespace Ecommerce.WebAssembly.Services.Implementation
 
                 ShowItems.Invoke();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _toastService.ShowError("cant add to cart");
             }
