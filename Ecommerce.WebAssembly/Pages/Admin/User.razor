@@ -1,8 +1,7 @@
 ﻿@page "/user"
 @page "/user/{id:int}"
 
-@using Ecommerce.DTO;
-@using Ecommerce.WebAssembly.Services.Contracts;
+
 @inject IUserService userservice
 @inject IToastService toastservice
 @inject NavigationManager _NavService
@@ -113,7 +112,7 @@
         }
         if (result)
         {
-            toastservice.ShowInfo(message);
+            toastservice.ShowSuccess(message);
             _NavService.NavigateTo("/users");
         }
         else

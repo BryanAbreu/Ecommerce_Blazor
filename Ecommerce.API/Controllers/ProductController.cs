@@ -18,7 +18,7 @@ namespace Ecommerce.API.Controllers
             _productService = productService;       
         }
 
-        [HttpGet("ProductList/{search:alpha?}")]
+        [HttpGet("ProductList/{search?}")]
         public async Task<IActionResult> List(string search = "NA")
         {
             var response = new ResponseDTO<List<ProductoDTO>>();
@@ -37,7 +37,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("Catalog/{category:alpha}/{search:alpha?}")]
+        [HttpGet("Catalog/{category}/{search?}")]
         public async Task<IActionResult> Cataglog(string category,string search = "NA")
         {
             var response = new ResponseDTO<List<ProductoDTO>>();

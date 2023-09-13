@@ -1,8 +1,97 @@
 ﻿@page "/category"
 @page "/category/{id:int}"
 
-<h3>Category</h3>
+@inject ICategoryService categoryservice
+@inject IToastService toastservice
+@inject NavigationManager _NavService
+
+<div class="row justify-content-center  mt-3">
+    <p class="col-sm-12 col-md-8 col-xl-10 h4 mt-2">@Title</p>
+</div>
+<div class="row justify-content-center  mt-3">
+    <div class="col-sm-12 col-md-8 col-xl-10">
+
+        <EditForm Model="model" OnValidSubmit="SavedChanges">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="input-group">
+                <span class="input-group-text bg-light">Nombre</span>
+                <input type="text" class="form-control" @bind-value="model.Nombre">
+            </div>
+            <ValidationMessage For="@(()=>model.Nombre)" />
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary" style="width:130px">@Buton</button>
+                <a href="/categories" class="btn btn-secondary" style="width:130px">Volver</a>
+            </div>
+        </EditForm>
+
+
+    </div>
+
+</div>
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
+    private string Title = "New Category";
+    private string Buton = "Create";
+    private CategoriaDTO model = new CategoriaDTO();
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+        {
+            Title = $"Edit Category #{Id}";
+            Buton = "Update";
+
+            var response = await categoryservice.GetById(Id);
+            if (response.EsCorrecto)
+            {
+                model = (CategoriaDTO)response.Response!;
+            }
+            else
+                toastservice.ShowError(response.Mensaje);
+        }
+    }
+
+    private async Task SavedChanges()
+    {
+        bool result = true;
+        string message = string.Empty;
+
+        if (Id != 0)
+        {
+            var responde = await categoryservice.Edit(model);
+            if (responde.EsCorrecto)
+                message = "User was Update";
+            else
+            {
+                result = false;
+                message = "can't update user";
+            }
+        }
+        else
+        {
+            var response = await categoryservice.Create(model);
+            if (response.EsCorrecto)
+            {
+                message = "Category was create";
+            }
+            else
+            {
+                result = false;
+                message = "can't create Category";
+            }
+        }
+        if (result)
+        {
+            toastservice.ShowSuccess(message);
+            _NavService.NavigateTo("/categories");
+        }
+        else
+        {
+            toastservice.ShowWarning(message);
+        }
+    }
 }
+

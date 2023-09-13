@@ -19,7 +19,7 @@ namespace Ecommerce.API.Controllers
 
         }
 
-        [HttpGet("CategoryList/{search:alpha?}")]
+        [HttpGet("CategoryList/{search?}")]
         public async Task<IActionResult> List(string search = "NA")
         {
             var response = new ResponseDTO<List<CategoriaDTO>>();
@@ -38,7 +38,7 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetById{id:int}")]
+        [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var response = new ResponseDTO<CategoriaDTO>();

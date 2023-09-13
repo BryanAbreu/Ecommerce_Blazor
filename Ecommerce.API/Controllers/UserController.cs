@@ -19,7 +19,7 @@ namespace Ecommerce.API.Controllers
         }
 
 
-        [HttpGet("UserList/{rol:alpha}/{search:alpha?}")]
+        [HttpGet("UserList/{rol}/{search?}")]
         public async Task<IActionResult> List(string rol, string search="NA")
         {
             var response = new ResponseDTO<List<UsuarioDTO>>();
