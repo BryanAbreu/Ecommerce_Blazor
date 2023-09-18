@@ -26,6 +26,7 @@ namespace Ecommerce.Services.Implementation
         public DashboardService(IGenericReposistory<Usuario> UsuarioRepository, IGenericReposistory<Producto> ProductoRepository,
             IVentaRepository VentaRepository,IMapper Mapper)
         {
+            _VentaRepository = VentaRepository;
             _UsuarioRepository = UsuarioRepository;
             _ProductoRepository = ProductoRepository;
             _Mapper = Mapper;

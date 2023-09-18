@@ -1,8 +1,30 @@
 ﻿@page "/"
 @page "/catalog"
 
+@inject ICategoryService categoryservice
+@inject IProductService productservice
+@inject NavigationManager _navservice
+
 <h3>Catalog</h3>
 
 @code {
+    private List<ProductoDTO>? ListProduct = null;
+    private List<CategoriaDTO>? ListCategory = null;
+    private string search = "";
+    private string Categoryselect = "ALl";
+
+    private async Task GetProducts(string value = "")
+    {
+        var response = await productservice.List(value);
+        if (response.EsCorrecto) ListProduct = (List<ProductoDTO>)response.Response!;
+        else ListProduct = new List<ProductoDTO>();
+    }
+
+    private async Task GetCategory(string value = "")
+    {
+        var response = await categoryservice.List(value);
+        if (response.EsCorrecto) ListCategory = (List<CategoriaDTO>)response.Response!;
+        else ListCategory = new List<CategoriaDTO>();
+    }
 
 }
