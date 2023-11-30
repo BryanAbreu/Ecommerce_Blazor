@@ -38,13 +38,13 @@ namespace Ecommerce.API.Controllers
         }
 
         [HttpGet("Catalog/{category}/{search?}")]
-        public async Task<IActionResult> Cataglog(string category,string search = "NA")
+        public async Task<IActionResult> Catalog(string category,string search = "NA")
         {
             var response = new ResponseDTO<List<ProductoDTO>>();
 
             try
             {
-                if (category.ToLower() == "Todos") category = "";
+                if (category == "All") category = "";
                 if (search == "NA") search = "";
                 response.EsCorrecto = true;
                 response.Response = await _productService.catalog(category,search);
@@ -57,14 +57,14 @@ namespace Ecommerce.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetById{id:int}")]
+        [HttpGet("GetById/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var response = new ResponseDTO<ProductoDTO>();
             try
             {
-                response.EsCorrecto = true;
                 response.Response = await _productService.GetProductID(id);
+                response.EsCorrecto = true;
             }
             catch (Exception ex)
             {

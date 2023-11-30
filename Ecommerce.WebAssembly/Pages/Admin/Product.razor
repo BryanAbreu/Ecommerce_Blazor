@@ -62,8 +62,9 @@
             </div>
 
             <div class="mt-3">
-                <button type="submit" class="btn btn-primary" style="width:130px">@Buton</button>
-                <a href="/productos" class="btn btn-secondary" style="width:130px">Volver</a>
+                @*<button type="submit" class="btn btn-primary" style="width:130px">@Buton</button>*@
+                  <button type="submit" class="btn btn-primary" style="width:130px">@Buton</button>
+                <a href="/products" class="btn btn-secondary" style="width:130px">Volver</a>
             </div>
         </EditForm>
 
@@ -155,7 +156,7 @@
 
     void  ChangeCategory(ChangeEventArgs e)
     {
-        model.IdCategoria = Convert.ToInt32(e.Value.ToString);
+        model.IdCategoria = Convert.ToInt32(e.Value.ToString());
 
     }
 
@@ -163,7 +164,7 @@
     {
         //para guardar imagen o pintarla 
         FileInfo file = new FileInfo(e.File.Name);
-        if (file.Extension.Contains(".jpg") || file.Extension.Contains(".png"))
+        if (file.Extension.Contains(".jpg") || file.Extension.Contains(".png") || file.Extension.Contains(".jpeg"))
         {
             var format = $"image/{file.Extension.Replace(".", "")}";
             var resizeImage = await e.File.RequestImageFileAsync(format, 450, 300);

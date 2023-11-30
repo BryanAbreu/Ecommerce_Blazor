@@ -5,20 +5,118 @@
 @inject IProductService productservice
 @inject NavigationManager _navservice
 
-<h3>Catalog</h3>
+<div class="row justify-content-center mt-3 mb-4">
+
+    <div class="col-sm-6 col-md-8 col-xl-9">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Buscar producto..." @bind-value="search">
+            <button class="btn btn-outline-secondary" type="button" @onclick="(async () => await  GetCatalog())">
+                <i class="oi oi-magnifying-glass"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3">
+
+
+        <div class="card">
+            <div class="card-header text-white bg-dark">
+                Categorias
+            </div>
+            <div class="card-body">
+                @if (ListCategory != null)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="category" id="All" value="All"
+                        @onchange="RadioSelect"
+                               checked=@(Categoryselect.Equals("All"))>
+                        <label class="form-check-label" for="All">
+                            Todos
+                        </label>
+                    </div>
+
+                    foreach (var item in ListCategory)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="category" id="@item.IdCategoria" value="@item.Nombre"
+                            @onchange="RadioSelect"
+                                   checked=@(Categoryselect.Equals(item.Nombre,StringComparison.OrdinalIgnoreCase))>
+                            <label class="form-check-label" for="@item.IdCategoria">
+                                @item.Nombre
+                            </label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-9">
+        <div class="row gx-4 row-cols-1 row-cols-md-3 row-cols-xl-4 justify-content-start">
+            @if (ListProduct != null)
+            {
+                foreach (var item in ListProduct)
+                {
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Sale badge-->
+                            @if (DateTime.Now < item.FechaCreacion.Value.AddDays(30))
+                            {
+                                <div class="badge bg-primary text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Nuevo</div>
+                            }
+                            <!-- Product image-->
+                            <img class="card-img-top border-dark border-1" src="@item.Imagen" style="width:100%;height:250px">
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">@item.Nombre</h5>
+                                    <!-- Product price-->
+                                    @if (item.PrecioOferta != 0 && item.PrecioOferta < item.Precio)
+                                    {
+                                        <span class="text-danger text-decoration-line-through">Є/.@item.Precio</span>
+                                        <span>Є  /.@item.PrecioOferta</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Є/.@item.Precio</span>
+                                    }
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-3 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="/detalle/@item.IdProducto">Ver producto</a></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+            }
+            else
+            {
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @code {
     private List<ProductoDTO>? ListProduct = null;
     private List<CategoriaDTO>? ListCategory = null;
     private string search = "";
-    private string Categoryselect = "ALl";
-
-    private async Task GetProducts(string value = "")
-    {
-        var response = await productservice.List(value);
-        if (response.EsCorrecto) ListProduct = (List<ProductoDTO>)response.Response!;
-        else ListProduct = new List<ProductoDTO>();
-    }
+    private string Categoryselect = "All";
 
     private async Task GetCategory(string value = "")
     {
@@ -26,5 +124,28 @@
         if (response.EsCorrecto) ListCategory = (List<CategoriaDTO>)response.Response!;
         else ListCategory = new List<CategoriaDTO>();
     }
+
+    private async Task GetCatalog()
+    {
+        var response = await productservice.Catalog(Categoryselect,search);
+        if (response.EsCorrecto) ListProduct = (List<ProductoDTO>)response.Response!;
+        else ListProduct = new List<ProductoDTO>();
+    }
+
+    private async Task RadioSelect(ChangeEventArgs args)
+    {
+        Categoryselect = args.Value.ToString();
+        search = "";
+        await GetCatalog();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategory();
+        await GetCatalog();
+
+    }
+
 
 }

@@ -95,7 +95,9 @@ namespace Ecommerce.Services.Implementation
         {
             try
             {
-                var select = await _Repository.Get(x => x.IdProducto == model.IdProducto && x.IdCategoria == model.IdCategoria).FirstOrDefaultAsync();
+                //pendiente revisar
+               // var select = await _Repository.Get(x => x.IdProducto == model.IdProducto && x.IdCategoria == model.IdCategoria).FirstOrDefaultAsync();
+                var select = await _Repository.Get(x => x.IdProducto == model.IdProducto).FirstOrDefaultAsync();
                 if (select != null)
                 {
                     select.Nombre = model.Nombre;

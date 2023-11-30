@@ -16,7 +16,7 @@ namespace Ecommerce.WebAssembly.Services.Implementation
 
         public async Task<ResponseDTO<List<ProductoDTO>>> Catalog(string category, string search)
         {
-            return await _httpClient.GetFromJsonAsync<ResponseDTO<List<ProductoDTO>>>($"Product/ProductList/{category}/{search}");
+            return await _httpClient.GetFromJsonAsync<ResponseDTO<List<ProductoDTO>>>($"Product/Catalog/{category}/{search}");
         }
 
         public async Task<ResponseDTO<ProductoDTO>> Create(ProductoDTO model)
@@ -34,7 +34,7 @@ namespace Ecommerce.WebAssembly.Services.Implementation
 
         public async Task<ResponseDTO<bool>> Edit(ProductoDTO model)
         {
-            var response = await _httpClient.PutAsJsonAsync("Product/Edit", model);
+            var response = await _httpClient.PutAsJsonAsync("Product/Edit",model);
             var resutl = await response.Content.ReadFromJsonAsync<ResponseDTO<bool>>();
 
             return resutl!;
@@ -42,7 +42,8 @@ namespace Ecommerce.WebAssembly.Services.Implementation
 
         public async Task<ResponseDTO<ProductoDTO>> GetById(int id)
         {
-            return await _httpClient.GetFromJsonAsync<ResponseDTO<ProductoDTO>>($"Product/GetById/{id}");
+            var response = await _httpClient.GetFromJsonAsync<ResponseDTO<ProductoDTO>>($"Product/GetById/{id}");
+            return response!;
         }
 
         public async Task<ResponseDTO<List<ProductoDTO>>> List(string search)
