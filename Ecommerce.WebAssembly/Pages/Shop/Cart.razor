@@ -1,6 +1,241 @@
 ﻿@page "/cart"
-<h3>Cart</h3>
+
+@inject ICartService cartService
+@inject ISalesService SaleService
+@inject IToastService toastSevice
+@inject  NavigationManager navService
+
+
+
+<div class="row mt-4">
+
+@*    INFORMACION DE LOS PRODUCTOS AGREGADOS EN EL CARRITO*@
+
+    <div class="col-sm-8">
+        <div class="card mb-3">
+
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm bg-light table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width:102px"></th>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (List.Any())
+                            {
+                                foreach (var item in List)
+                                {
+                                    <tr>
+                                        <td valign="middle">
+                                            <img class="card-img-top" src="@item.producto.Imagen" style="width:100px">
+                                        </td>
+                                        <td valign="middle">@item.producto.Nombre</td>
+                                        <td valign="middle">@item.precio</td>
+                                        <td valign="middle" align="center">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-dark" @onclick="(() =>ModifyQuantity(item.producto.IdProducto,false))">
+                                                    <i class="oi oi-minus"></i>
+                                                    </button>
+                                                <input class="form-control" readonly="readonly" style="width:50px" @bind-value="item.Cantidad" />
+                                                <button type="button" class="btn btn-outline-dark" @onclick="(() =>ModifyQuantity(item.producto.IdProducto,true))">
+                                                    <i class="oi oi-plus"></i>
+                                                    </button>
+                                            </div>
+                                        </td>
+                                        <td valign="middle">@item.total</td>
+                                        <td valign="middle">
+                                            <button type="button" class="btn btn-outline-dark" @onclick="(async () => await DeleteProduct(item.producto.IdProducto))">
+                                                <i class="oi oi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+
+                                
+                            }else{
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="alert alert-warning" role="alert">
+                                           No hay productos en el carrito
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                           
+
+                        </tbody>
+                    </table>
+                </div>
+
+                
+            </div>
+
+         
+        </div>
+    </div>
+
+@*    SE MUESTRA LA INFORMACION DE TARJETA Y OPCION DE PAGAR*@
+    <div class="col-sm-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <EditForm Model="tarjeta" OnValidSubmit="PayProces">
+                    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+                    <div class="mb-2">
+                        <label class="form-label">Nombre Titular</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="" @bind-value="tarjeta.Titular" disabled="@bDisable">
+                        <ValidationMessage For="@(()=>tarjeta.Titular)" />
+                        
+                    </div>
+                    <div class="mb-2">
+                        <label  class="form-label">Numero Tarjeta</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="##############" autocomplete="off" @bind-value="tarjeta.Numero" disabled="@bDisable">
+                        <ValidationMessage For="@(()=>tarjeta.Numero)" />
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="mb-2">
+                                <label class="form-label">Vigencia</label>
+                                <input type="text" class="form-control form-control-sm" placeholder="MM/YY" autocomplete="off" @bind-value="tarjeta.Viegencia" disabled="@bDisable">
+                                <ValidationMessage For="@(()=>tarjeta.Viegencia)" />
+                            </div>
+                        </div>  
+                        <div class="col-sm-6">
+                            <div class="mb-2">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control form-control-sm" placeholder="###" autocomplete="off" @bind-value="tarjeta.cvv" disabled="@bDisable">
+                                <ValidationMessage For="@(()=>tarjeta.cvv)" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <div>Total a pagar:</div>
+                        <div>Є/. @(List.Sum(i => i.total))</div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="d-grid gap-1">
+                            <button class="btn btn-outline-secondary float-end" type="submit" disabled="@bDisable">Procesar pago</button>
+                        </div>
+                    </div>
+                </EditForm>
+
+               @* COMENTAR TODO ESTO*@
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <div class="alert alert-danger mt-2" role="alert">
+                            Debe iniciar sesion para poder realizar la compra
+                        </div>
+                    </NotAuthorized>
+                </AuthorizeView>
+
+
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    bool bDisable = true;
+    private List<CarritoDTO> List = new List<CarritoDTO>();
+    private decimal? Total = 0;
+    private TarjetaDTO tarjeta = new TarjetaDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        List = await cartService.ItemCart();
+    }
+
+    private void ModifyQuantity(int Id,bool more)
+    {
+        if (more)
+        {
+            CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
+            if (Item.Cantidad + 1 > 0)
+            {
+                decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
+                Item.Cantidad++;
+                Item.total = Item.Cantidad * dEndPrice;
+            }
+        }else
+        {
+            CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
+            decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
+            Item.Cantidad--;
+            Item.total = Item.Cantidad * dEndPrice;
+        }
+    }
+
+    private async Task DeleteProduct(int IdProduct)
+    {
+        CarritoDTO Product = List.First(p => p.producto.IdProducto == IdProduct);
+        if (Product !=null)
+        {
+            List.Remove(Product);
+            await cartService.DelteToCart(IdProduct);
+        }
+
+    }
+    private async Task PayProces()
+    {
+        if (List.Count == 0)
+        {
+            toastSevice.ShowWarning("Product list not found");
+            return;
+        }
+        List<DetalleVentaDTO> Details = new List<DetalleVentaDTO>();
+        foreach (var item in List)
+        {
+            Details.Add(new DetalleVentaDTO()
+            {
+                IdProducto = item.producto.IdProducto,
+                Cantidad = item.Cantidad,
+                Total = item.total
+            });
+        }
+
+        VentaDTO model = new VentaDTO()
+        {
+            IdUsuario = 1,
+            Total = List.Sum(p => p.total),
+            DetalleVenta = Details
+        };
+
+        var response = await SaleService.Registre(model);
+        if (response.EsCorrecto)
+        {
+            await cartService.Clearcart();
+            toastSevice.ShowSuccess("Sales was registred");
+            navService.NavigateTo("/catalog");
+
+        }
+        else
+        {
+            toastSevice.ShowError(response.Mensaje);
+            
+        
+        }
+
+
+            
+            
+        
+
+            
+
+
+
+        
+
+
+    }
 
 }

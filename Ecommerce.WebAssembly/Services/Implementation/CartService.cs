@@ -26,9 +26,11 @@ namespace Ecommerce.WebAssembly.Services.Implementation
         {
             try
             {
-                var cart = await _localStorageService.GetItemAsync<List<CarritoDTO>>("Cart");
-                if (cart == null) cart = new List<CarritoDTO>();
-
+                var cart = await _localStorageService.GetItemAsync<List<CarritoDTO>>("cart");
+                if (cart == null)
+                {
+                    cart = new List<CarritoDTO>();
+                }
                 var items = cart.FirstOrDefault(x => x.producto.IdProducto == model.producto.IdProducto);
                 if (items == null) cart.Remove(items);
               
@@ -36,9 +38,14 @@ namespace Ecommerce.WebAssembly.Services.Implementation
                 await _localStorageService.SetItemAsync("cart", cart);
 
                 if (items != null)
+                {
                     _toastService.ShowSuccess("Product was update to cart");
+
+                }
                 else
+                {
                     _toastService.ShowSuccess("Product was add to cart");
+                }
 
                 ShowItems.Invoke();
             }

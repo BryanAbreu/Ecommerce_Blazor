@@ -12,6 +12,6 @@ namespace Ecommerce.DTO
 
         public int Cantidad { get; set; }
         public decimal? precio { get; set; }
-        public int? total { get; set; }
+        public decimal? total { get; set; }
     }
 }

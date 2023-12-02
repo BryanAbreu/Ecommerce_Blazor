@@ -85,7 +85,7 @@
                                     @if (item.PrecioOferta != 0 && item.PrecioOferta < item.Precio)
                                     {
                                         <span class="text-danger text-decoration-line-through">Є/.@item.Precio</span>
-                                        <span>Є  /.@item.PrecioOferta</span>
+                                        <span>Є/.@item.PrecioOferta</span>
                                     }
                                     else
                                     {
@@ -95,7 +95,7 @@
                             </div>
                             <!-- Product actions-->
                             <div class="card-footer p-3 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="/detalle/@item.IdProducto">Ver producto</a></div>
+                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="/detail/@item.IdProducto">Ver producto</a></div>
                             </div>
                         </div>
                     </div>
@@ -121,8 +121,14 @@
     private async Task GetCategory(string value = "")
     {
         var response = await categoryservice.List(value);
-        if (response.EsCorrecto) ListCategory = (List<CategoriaDTO>)response.Response!;
-        else ListCategory = new List<CategoriaDTO>();
+        if (response.EsCorrecto)
+        {
+            ListCategory = (List<CategoriaDTO>)response.Response!;
+        }
+        else 
+        {
+            ListCategory = new List<CategoriaDTO>();
+        }
     }
 
     private async Task GetCatalog()

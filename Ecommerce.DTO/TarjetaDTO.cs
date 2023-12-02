@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Ecommerce.DTO
 {
-    internal class TarjetaDTO
+    public class TarjetaDTO
     {
         [Required(ErrorMessage ="ingrese titual")]
         public string? Titular { get; set; }

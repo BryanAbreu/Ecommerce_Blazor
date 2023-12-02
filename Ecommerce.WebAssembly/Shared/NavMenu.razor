@@ -1,4 +1,5 @@
-﻿
+﻿@inject ICartService cartService
+@implements IDisposable
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" runat="server" href="#">Ecommerce Demo</a>
@@ -25,7 +26,7 @@
             <a class="btn btn-outline-dark ms-auto ms-md-0 me-3" href="/cart">
                 <i class="bi-cart-fill me-1"></i>
                 Cart
-                <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                <span class="badge bg-dark text-white ms-1 rounded-pill">@ShowQuantityCart()</span>
             </a>
 
             <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button">Salir</button>
@@ -44,5 +45,23 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        //StateHasChanged recarga el metodo com si fuera nuevo
+        cartService.ShowItems += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        cartService.ShowItems += StateHasChanged;
+    }
+
+    private int ShowQuantityCart()
+    {
+        return cartService.CartAmount();
+
+        
     }
 }
