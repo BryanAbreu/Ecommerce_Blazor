@@ -6,6 +6,9 @@
 @inject  NavigationManager navService
 
 
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+
 
 <div class="row mt-4">
 
@@ -128,7 +131,7 @@
                     </div>
                 </EditForm>
 
-               @* COMENTAR TODO ESTO
+                @*COMENTAR TODO ESTO*@
                 <AuthorizeView>
                     <NotAuthorized>
                         <div class="alert alert-danger mt-2" role="alert">
@@ -136,7 +139,7 @@
                         </div>
                     </NotAuthorized>
                 </AuthorizeView>
-                *@
+                
 
 
             </div>
@@ -150,9 +153,18 @@
     private decimal? Total = 0;
     private TarjetaDTO tarjeta = new TarjetaDTO();
 
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; }
+
+
+
     protected override async Task OnInitializedAsync()
     {
         List = await cartService.ItemCart();
+        var State = await AuthState;
+        if (State.User.Identity.IsAuthenticated)
+            bDisable = false;
+
     }
 
     private async void ModifyQuantity(int Id,bool more)
@@ -160,13 +172,13 @@
         CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
         if (more)
         {
-           
+
             decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
             Item.Cantidad++;
             Item.total = Item.Cantidad * dEndPrice;        
         }else
         {
-             Item = List.First(p => p.producto.IdProducto == Id);
+            Item = List.First(p => p.producto.IdProducto == Id);
             decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
             if (Item.Cantidad - 1 < 0)
             {
@@ -176,7 +188,7 @@
                 Item.Cantidad--;            
             }      
             Item.total = Item.Cantidad * dEndPrice;
-            
+
         }
         await cartService.AddToCart(Item);
     }
@@ -208,10 +220,12 @@
                 Total = item.total
             });
         }
+        var State = await AuthState;
+        string IdUser = State.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single();
 
         VentaDTO model = new VentaDTO()
         {
-            IdUsuario = 1,
+            IdUsuario = Convert.ToInt32(IdUser),
             Total = List.Sum(p => p.total),
             DetalleVenta = Details
         };

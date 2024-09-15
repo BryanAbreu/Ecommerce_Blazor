@@ -9,6 +9,9 @@ using Ecommerce.WebAssembly.Services.Implementation;
 using Ecommerce.DTO;
 using CurrieTechnologies.Razor.SweetAlert2;
 
+using Microsoft.AspNetCore.Components.Authorization;
+using Ecommerce.WebAssembly.Extensions;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -25,6 +28,9 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddSweetAlert2();
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthExtension>();
 
 await builder.Build().RunAsync();
 

@@ -1,5 +1,12 @@
 ﻿@inject ICartService cartService
 @implements IDisposable
+
+@inject SweetAlertService Swal;
+@inject NavigationManager _NavigationManger;
+@using Ecommerce.WebAssembly.Extensions;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
+@inject AuthenticationStateProvider authProvider;
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" runat="server" href="#">Ecommerce Demo</a>
@@ -9,29 +16,45 @@
         </button>
         <div class="@NavMenuCssClass navbar-collapse d-sm-inline-flex justify-content-between">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-
-                <li class="nav-item"><NavLink class="nav-link" href="dashboard"> Dashboard</NavLink></li>
-                <li class="nav-item"><NavLink class="nav-link" href="users"> Users</NavLink></li>
-                <li class="nav-item"><NavLink class="nav-link" href="categories"> Categories</NavLink></li>
-                <li class="nav-item"><NavLink class="nav-link" href="products"> Products</NavLink></li>
+                <AuthorizeView Roles="Admin">
+                    <li class="nav-item"><NavLink class="nav-link" href="dashboard"> Dashboard</NavLink></li>
+                    <li class="nav-item"><NavLink class="nav-link" href="users"> Users</NavLink></li>
+                    <li class="nav-item"><NavLink class="nav-link" href="categories"> Categories</NavLink></li>
+                    <li class="nav-item"><NavLink class="nav-link" href="products"> Products</NavLink></li>
+                </AuthorizeView>
+                
 
                 <li class="nav-item"><NavLink class="nav-link" href="catalog"> Shop</NavLink></li>
             </ul>
 
+            <AuthorizeView>
+                <Authorized>
+                    <span class="navbar-text me-3">
+                        @context.User.Claims.Where(c=> c.Type==ClaimTypes.Email).Select(c=> c.Value).SingleOrDefault();
+                    </span>
 
-            <span class="navbar-text me-3">
-                admins@example.com
-            </span>
+                </Authorized>
+            </AuthorizeView>
+           
 
             <a class="btn btn-outline-dark ms-auto ms-md-0 me-3" href="/cart">
                 <i class="bi-cart-fill me-1"></i>
                 Cart
                 <span class="badge bg-dark text-white ms-1 rounded-pill">@ShowQuantityCart()</span>
             </a>
+            <AuthorizeView>
+                <Authorized>
+                    <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button" @onclick="Logout" >Salir</button>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn btn-outline-dark ms-auto ms-md-0 me-3" href="/login">Iniciar sesion</a>
+                </NotAuthorized>
+            </AuthorizeView>
 
-            <button class="btn btn-outline-dark ms-auto ms-md-0 me-3" type="button">Salir</button>
 
-            <a class="btn btn-outline-dark ms-auto ms-md-0 me-3" href="/login">Iniciar sesion</a>
+           
+
+            
 
         </div>
     </div>
@@ -62,6 +85,29 @@
     {
         return cartService.CartAmount();
 
+
+    }
+
+    private async Task Logout()
+    {
+        SweetAlertResult resul = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Are you sure?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Yes,Delete",
+                CancelButtonText = "No,Cancel"
+            });
+
+        if (resul.IsConfirmed)
+        {
+            var AuthExt = (AuthExtension)authProvider;
+            await AuthExt.UpbateStateAuth(null);
+            _NavigationManger.NavigateTo("/", true);
+
+            
+        }
+        
         
     }
 }

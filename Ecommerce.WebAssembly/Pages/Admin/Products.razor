@@ -3,6 +3,7 @@
 @inject IToastService toasservice
 @inject SweetAlertService swal
 @inject NavigationManager _navservice
+@attribute [Authorize(Roles = "Admin")];
 
 
 <div class="row justify-content-center  mt-3">

@@ -2,6 +2,7 @@
 
 @inject IDashboardService dashboardservice
 @inject NavigationManager _navigateservice
+@attribute [Authorize(Roles = "Admin")];
 
 <div class="row mt-4">
 
