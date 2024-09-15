@@ -13,7 +13,7 @@ namespace Ecommerce.WebAssembly.Services.Implementation
         private ISyncLocalStorageService _syncLocalStorageService;
         private IToastService _toastService;
 
-        public CartService(ILocalStorageService localStorageService, ISyncLocalStorageService syncLocalStorageService, IToastService toastService)
+        public    CartService(ILocalStorageService localStorageService, ISyncLocalStorageService syncLocalStorageService, IToastService toastService)
         {
             _localStorageService = localStorageService;
             _syncLocalStorageService = syncLocalStorageService;
@@ -26,18 +26,35 @@ namespace Ecommerce.WebAssembly.Services.Implementation
         {
             try
             {
+                CarritoDTO item = new CarritoDTO();
                 var cart = await _localStorageService.GetItemAsync<List<CarritoDTO>>("cart");
-                if (cart == null)
+                if (cart.Count == 0)
                 {
                     cart = new List<CarritoDTO>();
+                    
                 }
-                var items = cart.FirstOrDefault(x => x.producto.IdProducto == model.producto.IdProducto);
-                if (items == null) cart.Remove(items);
-              
+                else
+                {
+                    item = cart.FirstOrDefault(x => x.producto.IdProducto == model.producto.IdProducto);
+                    if (item != null)
+                    {
+                        cart.Remove(item);
+                       await _localStorageService.SetItemAsync("cart", cart);
+
+                    }
+
+                    //                if (item != null)
+                    //                {
+
+
+                    //                   
+                    //                }
+                }
+               
                 cart.Add(model);
                 await _localStorageService.SetItemAsync("cart", cart);
 
-                if (items != null)
+                if (item != null)
                 {
                     _toastService.ShowSuccess("Product was update to cart");
 

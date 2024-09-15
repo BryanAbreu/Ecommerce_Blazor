@@ -74,11 +74,13 @@
         CarritoDTO cart = new CarritoDTO()
         {
             producto = model,
-                Cantidad = quantity,
+            
+             Cantidad = quantity,
             precio = dEndPrice,
                 total = Convert.ToDecimal(quantity) * dEndPrice
 
         };
+
         await cartService.AddToCart(cart);
 
     }

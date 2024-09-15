@@ -128,7 +128,7 @@
                     </div>
                 </EditForm>
 
-               @* COMENTAR TODO ESTO*@
+               @* COMENTAR TODO ESTO
                 <AuthorizeView>
                     <NotAuthorized>
                         <div class="alert alert-danger mt-2" role="alert">
@@ -136,6 +136,7 @@
                         </div>
                     </NotAuthorized>
                 </AuthorizeView>
+                *@
 
 
             </div>
@@ -154,24 +155,30 @@
         List = await cartService.ItemCart();
     }
 
-    private void ModifyQuantity(int Id,bool more)
+    private async void ModifyQuantity(int Id,bool more)
     {
+        CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
         if (more)
         {
-            CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
-            if (Item.Cantidad + 1 > 0)
-            {
-                decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
-                Item.Cantidad++;
-                Item.total = Item.Cantidad * dEndPrice;
-            }
+           
+            decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
+            Item.Cantidad++;
+            Item.total = Item.Cantidad * dEndPrice;        
         }else
         {
-            CarritoDTO Item = List.First(p => p.producto.IdProducto == Id);
+             Item = List.First(p => p.producto.IdProducto == Id);
             decimal? dEndPrice = (Item.producto.PrecioOferta != 0 && Item.producto.PrecioOferta < Item.producto.Precio) ? Item.producto.PrecioOferta : Item.producto.Precio;
-            Item.Cantidad--;
+            if (Item.Cantidad - 1 < 0)
+            {
+                await DeleteProduct(Id);
+            }else
+            {
+                Item.Cantidad--;            
+            }      
             Item.total = Item.Cantidad * dEndPrice;
+            
         }
+        await cartService.AddToCart(Item);
     }
 
     private async Task DeleteProduct(int IdProduct)

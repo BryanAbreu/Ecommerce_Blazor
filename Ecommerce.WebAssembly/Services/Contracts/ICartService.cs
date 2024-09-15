@@ -15,5 +15,6 @@ namespace Ecommerce.WebAssembly.Services.Contracts
 
 
 
+
     }
 }
