@@ -28,23 +28,30 @@ namespace Ecommerce.Services.Implementation
 
         public async Task<VentaDTO> Registre(VentaDTO model)
         {
-
             try
             {
                 var dbModel = _Mapper.Map<Venta>(model);
+                
+                // Set creation date if not provided
+                if (!dbModel.FechaCreacion.HasValue)
+                    dbModel.FechaCreacion = DateTime.Now;
+
+                // Calculate total if not set
+                if (!dbModel.Total.HasValue)
+                {
+                    dbModel.Total = dbModel.DetalleVenta.Sum(d => d.Total ?? 0);
+                }
+
                 var sales = await _Repository.Registre(dbModel);
 
-                if (sales.IdVenta == 0)
-                    throw new TaskCanceledException("Error no generate sale service");
-                else
-                {
-                    return _Mapper.Map<VentaDTO>(sales);
-                
-                }
+                if (sales == null || sales.IdVenta == 0)
+                    throw new TaskCanceledException("No se pudo generar la venta");
+
+                return _Mapper.Map<VentaDTO>(sales);
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new Exception("Error al registrar la venta: " + ex.Message);
             }
         }
     }

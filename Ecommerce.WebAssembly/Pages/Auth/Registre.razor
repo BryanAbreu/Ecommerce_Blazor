@@ -1,7 +1,82 @@
 ﻿@page "/registre"
 @layout LoginLayout
-<h3>Registre</h3>
+
+@inject IUserService _UserService
+@inject NavigationManager _NavigationManager
+@inject IToastService ToastService
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card rounded-lg mt-5">
+                <div class="card-header"><h3 class="text-center font-weight-light my-4">Crear Cuenta</h3></div>
+                <div class="card-body">
+
+                    <EditForm Model="_User" OnValidSubmit="HandleRegistre">
+                        <DataAnnotationsValidator></DataAnnotationsValidator>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="inputEmail" type="text" placeholder="name@example.com" @bind-value="_User.NombreCompleto" autocomplete="off" />
+                            <label for="inputEmail">Nombre Completo</label>
+                            <ValidationMessage For="@(()=>_User.NombreCompleto)" />
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" @bind-value="_User.Correo" autocomplete="off" />
+                            <label for="inputEmail">Correo</label>
+                            <ValidationMessage For="@(()=>_User.Correo)" />
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="inputPassword" type="password" placeholder="Create a password" @bind-value="_User.Clave" autocomplete="off" />
+                                    <label for="inputPassword">Contraseña</label>
+                                    <ValidationMessage For="@(()=>_User.Clave)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3 mb-md-0">
+                                    <input class="form-control" id="inputPasswordConfirm" type="password" placeholder="Confirm password" @bind-value="_User.ConfirmarClave" autocomplete="off" />
+                                    <label for="inputPasswordConfirm">Confirmar Contraseña</label>
+                                    <ValidationMessage For="@(()=>_User.ConfirmarClave)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 mb-0">
+                            <div class="d-grid"><button class="btn btn-primary btn-block" type="submit">Registrarse</button></div>
+                        </div>
+                    </EditForm>
+
+                </div>
+                <div class="card-footer text-center py-3">
+                    <div class="small"><a href="/login">Tienes una cuenta? ir a login</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    private UsuarioDTO _User = new UsuarioDTO();
+    private async Task HandleRegistre()
+    {
+        if(_User.Clave != _User.ConfirmarClave)
+        {
+            ToastService.ShowWarning("Las contraseñas no coinciden");
+            return;
+        }
+        _User.Rol = "User";
+
+        var result = await _UserService.Create(_User);
+        if (result.EsCorrecto && result.Response != null)
+        {
+            ToastService.ShowSuccess("Usuario registrado correctamente");
+            _NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            ToastService.ShowError("No se pudo registrar el usuario");
+        }
+    }
 
 }

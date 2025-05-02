@@ -20,8 +20,6 @@ namespace Ecommerce.Repository.Implementation
 
         public async Task<Venta> Registre(Venta model)
         {
-            Venta ventagenerada  = new Venta();
-
             using (var trans = _dbContext.Database.BeginTransaction())
             {
                 try
@@ -29,24 +27,23 @@ namespace Ecommerce.Repository.Implementation
                     foreach (DetalleVenta dv in model.DetalleVenta)
                     {
                         Producto producto = _dbContext.Productos.Where(p => p.IdProducto == dv.IdProducto).First();
-
                         producto.Cantidad = producto.Cantidad - dv.Cantidad;
                         _dbContext.Productos.Update(producto);
                     }
                     await _dbContext.SaveChangesAsync();
 
                     await _dbContext.Venta.AddAsync(model);
-                    ventagenerada = model;
+                    await _dbContext.SaveChangesAsync();
 
-                    trans.Commit();
+                    await trans.CommitAsync();
+                    return model;
                 }
                 catch (Exception)
                 {
-                    trans.Rollback();
+                    await trans.RollbackAsync();
                     throw;
                 }
             }
-            return ventagenerada;
         }
     }
 }

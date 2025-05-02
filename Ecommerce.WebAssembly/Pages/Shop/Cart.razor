@@ -205,58 +205,66 @@
     }
     private async Task PayProces()
     {
-        if (List.Count == 0)
+        try
         {
-            toastSevice.ShowWarning("Product list not found");
-            return;
-        }
-        List<DetalleVentaDTO> Details = new List<DetalleVentaDTO>();
-        foreach (var item in List)
-        {
-            Details.Add(new DetalleVentaDTO()
+            if (List.Count == 0)
             {
-                IdProducto = item.producto.IdProducto,
-                Cantidad = item.Cantidad,
-                Total = item.total
-            });
+                toastSevice.ShowWarning("No hay productos en el carrito");
+                return;
+            }
+
+            // Validar la tarjeta
+            if (string.IsNullOrEmpty(tarjeta.Titular) || string.IsNullOrEmpty(tarjeta.Numero) || 
+                string.IsNullOrEmpty(tarjeta.Viegencia) || string.IsNullOrEmpty(tarjeta.cvv))
+            {
+                toastSevice.ShowWarning("Por favor complete todos los datos de la tarjeta");
+                return;
+            }
+
+            List<DetalleVentaDTO> Details = new List<DetalleVentaDTO>();
+            foreach (var item in List)
+            {
+                Details.Add(new DetalleVentaDTO()
+                {
+                    IdProducto = item.producto.IdProducto,
+                    Cantidad = item.Cantidad,
+                    Total = item.total
+                });
+            }
+
+            var State = await AuthState;
+            if (!State.User.Identity.IsAuthenticated)
+            {
+                toastSevice.ShowWarning("Debe iniciar sesión para realizar la compra");
+                return;
+            }
+
+            string IdUser = State.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single();
+
+            VentaDTO model = new VentaDTO()
+            {
+                IdUsuario = Convert.ToInt32(IdUser),
+                Total = List.Sum(p => p.total),
+                DetalleVenta = Details
+            };
+
+            var response = await SaleService.Registre(model);
+            if (response.EsCorrecto)
+            {
+                await cartService.Clearcart();
+                List.Clear();
+                toastSevice.ShowSuccess("La venta se ha registrado correctamente");
+                navService.NavigateTo("/catalog");
+            }
+            else
+            {
+                toastSevice.ShowError(response.Mensaje);
+            }
         }
-        var State = await AuthState;
-        string IdUser = State.User.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).Single();
-
-        VentaDTO model = new VentaDTO()
+        catch (Exception ex)
         {
-            IdUsuario = Convert.ToInt32(IdUser),
-            Total = List.Sum(p => p.total),
-            DetalleVenta = Details
-        };
-
-        var response = await SaleService.Registre(model);
-        if (response.EsCorrecto)
-        {
-            await cartService.Clearcart();
-            toastSevice.ShowSuccess("Sales was registred");
-            navService.NavigateTo("/catalog");
-
+            toastSevice.ShowError("Error al procesar el pago: " + ex.Message);
         }
-        else
-        {
-            toastSevice.ShowError(response.Mensaje);
-            
-        
-        }
-
-
-            
-            
-        
-
-            
-
-
-
-        
-
-
     }
 
 }

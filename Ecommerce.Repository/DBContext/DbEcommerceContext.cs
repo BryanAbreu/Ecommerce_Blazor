@@ -27,7 +27,15 @@ public partial class DbEcommerceContext : DbContext
     public virtual DbSet<Venta> Venta { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-8N05DNO\\SQLEXPRESS; DataBase=DbEcommerce; Trusted_Connection=True; TrustServerCertificate=True;");
+    {
+#if DEBUG
+        if (!optionsBuilder.IsConfigured)
+        {
+            // Solo para desarrollo/debug si no está configurado
+            optionsBuilder.UseSqlServer("Server=DESKTOP-8N05DNO\\SQLEXPRESS; DataBase=DbEcommerce; Trusted_Connection=True; TrustServerCertificate=True;");
+        }
+#endif
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,5 +1,78 @@
 ﻿@page "/login"
 @layout LoginLayout
 
-<h3>Login</h3>
+@using Ecommerce.WebAssembly.Extensions
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IUserService _UserService
+@inject NavigationManager _NavigationManager
+@inject IToastService ToastService
+@inject AuthenticationStateProvider _AuthenticationStateProvider
 
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card rounded-lg mt-5">
+                <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
+                <div class="card-body">
+                    <EditForm Model="_login" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="inputEmail" type="email" placeholder="admin@example.com" @bind-value="_login.Correo" autocomplete="off" />
+                            <label for="inputEmail">Correo</label>
+                            <ValidationMessage For="@(()=>_login.Correo)" />
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="inputPassword" type="password" placeholder="123" @bind-value="_login.Clave" autocomplete="off" />
+                            <label for="inputPassword">Contraseña</label>
+                            <ValidationMessage For="@(()=>_login.Clave)" />
+                        </div>
+
+                        <div class="d-grid gap-1 mt-4 mb-0">
+                            <button class="btn btn-primary" type="submit">Ingresar</button>
+                        </div>
+                    </EditForm>
+                </div>
+                <div class="card-footer text-center py-3">
+                    <div class="small"><a href="/registre">No tienes una cuenta? Registrate!</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code
+{
+    private LoginDTO _login = new LoginDTO();
+    private async Task HandleLogin()
+    {
+        var result = await _UserService.Auth(_login);
+        if (result.EsCorrecto && result.Response != null)
+        {
+           SesionDTO session =(SesionDTO)result.Response!;
+           var AuthExit = (AuthExtension)_AuthenticationStateProvider;
+           await AuthExit.UpbateStateAuth(session);
+
+           if(session.Rol == "Admin")
+           {
+                _NavigationManager.NavigateTo("/admin/dashboard");
+           }
+           else if(session.Rol == "User")
+           {
+                _NavigationManager.NavigateTo("/catalog");
+           }
+           else
+           {
+                _NavigationManager.NavigateTo("/login");
+           }
+        }  
+        else
+        {
+            ToastService.ShowError("HandleLogin : "+ result.Mensaje!);
+        }
+    }
+
+
+
+
+
+}
